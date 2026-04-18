@@ -32,9 +32,8 @@ Most AI voice features are locked inside specific apps. VoiceLink breaks those w
 ## 🚀 Get Started in 60 Seconds
 
 1.  **Download**: Grab the latest [SinergitecVoiceLink.exe](https://github.com/danilofrazao-dev/Sinergitec.VoiceLink/releases).
-2.  **Paste Key**: Use your **Groq API Key** (starts with `gsk_`).
-3.  **PTT Mode**: Hold **F8** anywhere on your PC to talk, and release it to send. 
-4.  **Loopback Mode**: Switch the source to "System Audio" to transcribe your desktop output.
+3. **Start Capture**: Paste your **Groq API Key** and click the Start button to begin recording.
+4. **Loopback Mode**: Switch the source to "System Audio" to transcribe your desktop output.
 
 ---
 
