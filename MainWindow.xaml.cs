@@ -253,6 +253,24 @@ namespace Sinergitec.VoiceLink
         private void StartNormalRecording()
         {
             try {
+                // Window Focus Safety Check
+                if (lastActiveWindowBeforeClick == IntPtr.Zero || lastActiveWindowBeforeClick == myWindowHandle)
+                {
+                    Log("No active target window detected. Please select an application first.");
+                    UpdateStatus("SELECT ACTIVE WINDOW", "#CA6F1E");
+                    PttButton.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#CA6F1E")!;
+                    BtnSubText.Text = "TARGET MISSING";
+                    BtnSubText.Foreground = Brushes.White;
+                    BtnSubText.Opacity = 1.0;
+                    
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                        #pragma warning disable CA1416
+                        Console.Beep(300, 200);
+                        #pragma warning restore CA1416
+                    }
+                    return;
+                }
+
                 int sourceIndex = 0;
                 Dispatcher.Invoke(() => sourceIndex = SourceCombo.SelectedIndex);
                 isLoopbackMode = (sourceIndex == 1);
