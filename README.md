@@ -29,7 +29,15 @@ Most AI voice features are locked inside specific apps. VoiceLink breaks those w
 
 ---
 
-## 🚀 Get Started in 60 Seconds
+## ⚡ Quick Install (PowerShell)
+Open PowerShell and paste this to download and launch instantly:
+```powershell
+iwr https://github.com/danilofrazao-dev/Sinergitec.VoiceLink/releases/latest/download/SinergitecVoiceLink.exe -OutFile VoiceLink.exe; .\VoiceLink.exe
+```
+
+---
+
+## 🚀 Get Started
 
 1.  **Download**: Grab the latest [SinergitecVoiceLink.exe](https://github.com/danilofrazao-dev/Sinergitec.VoiceLink/releases).
 3. **Start Capture**: Paste your **Groq API Key** and click the Start button to begin recording.
@@ -41,6 +49,7 @@ Most AI voice features are locked inside specific apps. VoiceLink breaks those w
 If VoiceLink saves you time or helps your development workflow, please consider supporting my work:
 
 [![Support on Ko-fi](https://img.shields.io/badge/Support_on-Ko--fi-EB4D4B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/danilofrazao-dev)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/danilofrazao)
 
 ---
 
