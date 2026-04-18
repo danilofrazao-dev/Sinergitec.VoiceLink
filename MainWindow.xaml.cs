@@ -34,23 +34,6 @@ namespace Sinergitec.VoiceLink
         [DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();
 
-        // Global Keyboard Hook Imports
-        private const int WH_KEYBOARD_LL = 13;
-        private const int WM_KEYDOWN = 0x0100;
-        private const int WM_KEYUP = 0x0101;
-        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        private IntPtr hookId = IntPtr.Zero;
-        private LowLevelKeyboardProc proc;
         // ------------------
 
         bool isRecording = false;
@@ -74,9 +57,6 @@ namespace Sinergitec.VoiceLink
         {
             InitializeComponent();
             Log("Sinergitec Audio Bridge Initialized.");
-            proc = HookCallback;
-            hookId = SetHook(proc);
-            this.Closed += MainWindow_Closed;
             
             this.Loaded += (s, e) => {
                 myWindowHandle = new WindowInteropHelper(this).Handle;
@@ -122,53 +102,6 @@ namespace Sinergitec.VoiceLink
             }
         }
 
-        private IntPtr SetHook(LowLevelKeyboardProc proc)
-        {
-            using (Process curProcess = Process.GetCurrentProcess())
-            using (ProcessModule curModule = curProcess.MainModule!)
-            {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName!), 0);
-            }
-        }
-
-        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
-        {
-            if (nCode >= 0)
-            {
-                int vkCode = Marshal.ReadInt32(lParam);
-                if (vkCode == 119) // F8 Virtual Key Code
-                {
-                    if (wParam == (IntPtr)WM_KEYDOWN)
-                    {
-                        if (!isRecording)
-                        {
-                            string hookApiKey = "";
-                            Dispatcher.Invoke(() => hookApiKey = ApiKeyBox.Text.Trim());
-                            if (string.IsNullOrEmpty(hookApiKey)) {
-                                Dispatcher.Invoke(() => {
-                                    string errorMsg = GetApiErrorMessage();
-                                    MessageBox.Show(errorMsg, "Sinergitec VoiceLink", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                    MainTabControl.SelectedItem = TabApi;
-                                });
-                            } else {
-                                Dispatcher.Invoke(() => StartNormalRecording());
-                            }
-                        }
-                    }
-                    else if (wParam == (IntPtr)WM_KEYUP)
-                    {
-                        if (isRecording)
-                            Dispatcher.Invoke(() => StopNormalRecording());
-                    }
-                }
-            }
-            return CallNextHookEx(hookId, nCode, wParam, lParam);
-        }
-
-        private void MainWindow_Closed(object? sender, EventArgs e)
-        {
-            UnhookWindowsHookEx(hookId);
-        }
 
         private void Log(string msg)
         {
@@ -257,9 +190,9 @@ namespace Sinergitec.VoiceLink
                 if (lastActiveWindowBeforeClick == IntPtr.Zero || lastActiveWindowBeforeClick == myWindowHandle)
                 {
                     Log("No active target window detected. Please select an application first.");
-                    UpdateStatus("SELECT ACTIVE WINDOW", "#CA6F1E");
+                    UpdateStatus(GetSelectActiveWindowText(), "#CA6F1E");
                     PttButton.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#CA6F1E")!;
-                    BtnSubText.Text = "TARGET MISSING";
+                    BtnSubText.Text = GetTargetMissingText();
                     BtnSubText.Foreground = Brushes.White;
                     BtnSubText.Opacity = 1.0;
                     
@@ -572,12 +505,37 @@ namespace Sinergitec.VoiceLink
         }
 
         private string GetBtnSubText(bool recording) {
-            string lang = CmbLanguage != null && CmbLanguage.SelectedItem != null 
-                          ? ((ComboBoxItem)CmbLanguage.SelectedItem).Content.ToString() 
-                          : "EN";
+            string lang = GetCurrentLang();
             if (lang == "PT") return recording ? "GRAVANDO..." : "CAPTURA";
             if (lang == "ES") return recording ? "GRABANDO..." : "CAPTURA";
             return recording ? "RECORDING..." : "CAPTURE";
+        }
+
+        private string GetCurrentLang() {
+            return CmbLanguage != null && CmbLanguage.SelectedItem != null 
+                   ? ((ComboBoxItem)CmbLanguage.SelectedItem).Content.ToString() 
+                   : "EN";
+        }
+
+        private string GetTargetMissingText() {
+            string lang = GetCurrentLang();
+            if (lang == "PT") return "ALVO EM FALTA";
+            if (lang == "ES") return "FALTA EL OBJETIVO";
+            return "TARGET MISSING";
+        }
+
+        private string GetSelectActiveWindowText() {
+            string lang = GetCurrentLang();
+            if (lang == "PT") return "SELECIONE JANELA ATIVA";
+            if (lang == "ES") return "SELECCIONE VENTANA ACTIVA";
+            return "SELECT ACTIVE WINDOW";
+        }
+
+        private string GetApiKeyFeedbackText() {
+            string lang = GetCurrentLang();
+            if (lang == "PT") return "🚀 Sucesso! Vá para 'Controles' e experimente a magia!";
+            if (lang == "ES") return "🚀 ¡Éxito! ¡Ve a 'Controles' y experimenta la magia!";
+            return "🚀 Success! Now head over to 'Controls' and experience the magic!";
         }
 
         private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -606,6 +564,7 @@ namespace Sinergitec.VoiceLink
                 LblGetApiStep3.Text = "Copie a chave, cole aqui ou na aba 'Controles' e clique para começar a gravar!";
                 BtnGetApiLink.Content = "ABRIR CONSOLE API";
                 LblApiKeyLink.Text = "INSERIR CHAVE API";
+                if (LblApiKeyFeedback != null) LblApiKeyFeedback.Text = GetApiKeyFeedbackText();
                 if (!isRecording) UpdateStatus("Pronto para Transcrever", "#7FD49A");
             } 
             else if (lang == "ES") {
@@ -629,6 +588,7 @@ namespace Sinergitec.VoiceLink
                 LblGetApiStep3.Text = "¡Copia la clave, pégala aquí o en la pestaña 'Controles' y haz clic para comenzar a grabar!";
                 BtnGetApiLink.Content = "ABRIR CONSOLA API";
                 LblApiKeyLink.Text = "INSERTAR CLAVE API";
+                if (LblApiKeyFeedback != null) LblApiKeyFeedback.Text = GetApiKeyFeedbackText();
                 if (!isRecording) UpdateStatus("Listo para Transcribir", "#7FD49A");
             }
             else { // EN
@@ -652,6 +612,7 @@ namespace Sinergitec.VoiceLink
                 LblGetApiStep3.Text = "Copy the key, paste it here or in the 'Controls' tab, and click to start recording!";
                 BtnGetApiLink.Content = "LAUNCH API CONSOLE";
                 LblApiKeyLink.Text = "INSERT API KEY";
+                if (LblApiKeyFeedback != null) LblApiKeyFeedback.Text = GetApiKeyFeedbackText();
                 if (!isRecording) UpdateStatus("Ready to Transcribe", "#7FD49A");
             }
         }

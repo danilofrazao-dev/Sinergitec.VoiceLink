@@ -12,6 +12,12 @@
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Version>2.0.4</Version>
+    <Authors>danilofrazao-dev</Authors>
+    <Company>Sinergitec Systems</Company>
+    <Product>Sinergitec VoiceLink</Product>
+    <Copyright>Copyright © 2026 Danilo Frazao / Sinergitec Systems</Copyright>
+    <Description>The Universal AI Audio Bridge for Discord, Meetings, and Prompting.</Description>
   </PropertyGroup>
 
   <ItemGroup>
