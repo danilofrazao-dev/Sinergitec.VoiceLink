@@ -17,10 +17,11 @@
 
 Most AI voice features are locked inside specific apps. VoiceLink breaks those walls:
 
-1.  **The AI Chat Bridge 🤖**: Most frontier models — **Claude Opus**, **Claude Sonnet**, **GPT-4o**, **Gemini** via web, and agentic frameworks like **Anti-Gravity** — don't have native voice input. VoiceLink gives them all a voice, instantly.
+1.  **The AI Chat Bridge 🤖**: Most frontier models and agentic frameworks — including Claude 3 Opus, Claude 3.5 Sonnet, GPT-4o, Gemini via web, and Anti-Gravity (especially with open-source local models) — don't have native voice input available. VoiceLink gives them all a voice, instantly.
 2.  **The Discord & Meeting Assistant 🔊**: Capture and transcribe audio directly from Discord, Zoom, or Google Meet using our **Loopback technology**. No virtual cables or complex drivers needed.
 3.  **Deep System Integration 🛡️**: Unlike browser extensions, VoiceLink works in **Administrator-level** applications (Task Manager, Registry Editor, VS Code elevated) thanks to its native Windows hooks.
 4.  **Save Thousands of Keystrokes ⌨️**: Researching a complex architectural prompt? Speak it in 5 seconds instead of typing for 2 minutes.
+5.  **The Universal Text Box 🌐 (Everywhere You Type)**: VoiceLink works perfectly on *any* text insertion box. Whether you're doing a browser search, prompting an AI, writing an email, or editing a document in Google Docs, if you can type in it, VoiceLink can speak to it.
 
 ---
 
