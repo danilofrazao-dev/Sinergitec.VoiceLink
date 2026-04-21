@@ -1,6 +1,6 @@
 # 🎙️ Sinergitec VoiceLink: The Universal AI Audio Bridge
 
-![Version](https://img.shields.io/badge/version-2.0.9--L-7FD49A.svg)
+![Version](https://img.shields.io/badge/version-2.0.9-7FD49A.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Support on Ko-fi](https://img.shields.io/badge/Donate-Ko--fi-EB4D4B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/danilofrazao-dev)
