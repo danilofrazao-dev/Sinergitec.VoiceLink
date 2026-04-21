@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-2.0.9-7FD49A.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-[![Support on Ko-fi](https://img.shields.io/badge/Donate-Ko--fi-EB4D4B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/danilofrazao-dev)
+[![Support on Ko-fi](https://img.shields.io/badge/Donate-Ko--fi-EB4D4B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/laystorages)
 
 **Sinergitec VoiceLink** is a high-performance, native Windows application designed to bridge the gap between your voice and any AI interface. Whether you are coding in **VS Code**, prompting a frontier model inside a web UI, or chatting on **Discord**, VoiceLink lets you speak your thoughts and see them typed out at superhuman speed.
 
@@ -56,8 +56,8 @@ iwr https://github.com/danilofrazao-dev/Sinergitec.VoiceLink/releases/latest/dow
 ## ☕ Support & Sponsorship
 If VoiceLink saves you time or helps your development workflow, please consider supporting my work:
 
-[![Support on Ko-fi](https://img.shields.io/badge/Support_on-Ko--fi-EB4D4B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/danilofrazao-dev)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/danilofrazao)
+[![Support on Ko-fi](https://img.shields.io/badge/Support_on-Ko--fi-EB4D4B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/laystorages)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/laystorages)
 
 ---
 
