@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinergitec | VoiceLink v3.0.0</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #151515;
+            --primary: #3e8e6b; /* Official Sinergy Olive Green */
+            --primary-glow: rgba(62, 142, 107, 0.25);
+            --text: #eeeeee;
+            --text-dim: #777777;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", "Segoe UI Semibold", "Segoe UI Bold", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            font-size: 1rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Glow */
+        .glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, var(--primary-glow) 0%, transparent 60%);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header {
+            padding: 3rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .logo-img {
+            height: 100px;
+            width: auto;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin-left: 3rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem); 
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .hero h1 span.brand {
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .hero h1 span.version {
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 500px;
+            margin: 0 auto 4.5rem;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2rem 4rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: rgba(255,255,255,0.9);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            background-color: #4aab80;
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .btn-secondary:hover {
+            color: var(--text);
+            background-color: rgba(255,255,255,0.02);
+            border-color: var(--primary);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 10rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 5rem 3.5rem;
+            border-radius: 40px;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.02);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            background: #181818;
+        }
+
+        .feature-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .feature-card p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .wave-preview {
+            margin-top: 8rem;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.25;
+        }
+
+        .wave-line {
+            width: 350px;
+            height: 2px;
+            background: var(--primary);
+            position: relative;
+            border-radius: 1px;
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        footer {
+            padding: 6rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.02);
+            margin-top: 10rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .social-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            transition: var(--transition);
+            text-transform: uppercase;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            opacity: 0.2;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            header { flex-direction: column; gap: 2rem; padding: 3rem 2rem; }
+            .logo-img { height: 60px; }
+            nav a { margin: 0.5rem 0; font-size: 0.7rem; }
+            nav { display: flex; flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow"></div>
+
+    <header>
+        <img src="assets/logo_full.png" alt="Sinergitec Logo" class="logo-img">
+        <nav>
+            <a href="#features">Features</a>
+            <a href="https://github.com/danilofrazao-dev/Sinergitec.VoiceLink">GitHub</a>
+            <a href="https://github.com/danilofrazao-dev/Sinergitec.VoiceLink#--support--sponsorship">Support</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1><span class="brand">VOICELINK</span> <span class="version">V3.0.0</span></h1>
+            <p>The Ultimate Professional Audio Link. Universal injection, real-time visualization, and 100% local privacy. The Ark of AI voice tools.</p>
+            
+            <div class="cta-group">
+                <a href="https://github.com/danilofrazao-dev/Sinergitec.VoiceLink/releases/download/v3.0.0/SinergitecVoiceLink.exe" class="btn btn-primary">DOWNLOAD FOR WINDOWS</a>
+                <a href="https://github.com/danilofrazao-dev/Sinergitec.VoiceLink#--support--sponsorship" class="btn btn-secondary">SUPPORT THE PROJECT</a>
+            </div>
+        </section>
+
+        <div class="wave-preview">
+            <div class="wave-line"></div>
+        </div>
+
+        <section id="features" class="features">
+            <div class="feature-card">
+                <h3>Universal Injection</h3>
+                <p>Type into any windowâ€”VS Code, Slack, Terminalâ€”using only your voice. Faster than a keyboard, smarter than a transcript.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Local-First Privacy</h3>
+                <p>Your data stays on your machine. No cloud storage, no training on your voice. Secure interaction by design.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Radical Visualization</h3>
+                <p>High-precision audio feedback with our custom mini-spike waveform. See the pulse of your connection in real-time.</p>
+            </div>
+        </section>
+
+        <section id="support" style="margin-top: 10rem;">
+            <h2 style="font-weight: 600; text-transform: uppercase; margin-bottom: 2rem;">Support Sinergitec</h2>
+            <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto 3rem;">Your support helps us keep Sinergitec independent and local-first. Every contribution goes directly towards trademarking and future developments.</p>
+            <a href="https://github.com/danilofrazao-dev/Sinergitec.VoiceLink#--support--sponsorship" class="btn btn-primary">CONTRIBUTE NOW</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://tiktok.com/@sinergitec">TIKTOK</a>
+            <a href="https://instagram.com/sinergitec">INSTAGRAM</a>
+            <a href="https://twitter.com/sinergitec">X / TWITTER</a>
+        </div>
+        <p class="copyright">Developed by danilofrazao-dev | &copy; 2026 Sinergitec Systems</p>
+    </footer>
+
+    <script>
+        // High-Voltage flickering animation
+        const wave = document.querySelector('.wave-line');
+        let angle = 0;
+        function animate() {
+            angle += 0.08;
+            const blur = 15 + Math.sin(angle * 3) * 15;
+            const intensity = 0.5 + Math.sin(angle * 6) * 0.5;
+            wave.style.boxShadow = `0 0 ${blur}px var(--primary)`;
+            wave.style.opacity = 0.3 + intensity * 0.4;
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
+
