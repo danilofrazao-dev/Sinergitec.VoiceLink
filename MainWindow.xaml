@@ -1,0 +1,499 @@
+<Window x:Class="Sinergitec.VoiceLink.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sinergitec VoiceLink" MinHeight="660" MinWidth="340" Height="680" Width="360"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        Topmost="True">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="30" ResizeBorderThickness="7" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Dark ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="#7FD49A"/>
+            <Setter Property="BorderBrush" Value="#333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" 
+                                          Background="{TemplateBinding Background}" 
+                                          BorderBrush="{TemplateBinding BorderBrush}" 
+                                          BorderThickness="{TemplateBinding BorderThickness}" 
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                          Focusable="false" 
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="templateRoot" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                            <Grid HorizontalAlignment="Right" Width="20">
+                                                <Path x:Name="Arrow" Data="M0,0 L4,4 L8,0 Z" Fill="#7FD49A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="contentPresenter" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="5,0,20,0" IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="true" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom" PopupAnimation="Slide">
+                                <Border x:Name="dropDownBorder" Background="#252525" BorderBrush="#333" BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ScrollViewer x:Name="DropDownScrollViewer">
+                                        <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="#7FD49A"/>
+            <Setter Property="Padding" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#333"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#34493D"/>
+                    <Setter Property="Foreground" Value="#7FD49A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Toggle Switch Style for CheckBox -->
+        <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid x:Name="Switch" Width="36" Height="18" Margin="0,0,8,0">
+                                <Border x:Name="Track" CornerRadius="9" Background="#333" BorderBrush="#444" BorderThickness="1"/>
+                                <Border x:Name="Thumb" CornerRadius="8" Background="#7FD49A" Width="14" Height="14" HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                            </Grid>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#34493D"/>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="#7FD49A"/>
+                                <Setter TargetName="Thumb" Property="Margin" Value="20,0,2,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Custom Stealth ScrollBar Style -->
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="MinWidth" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="#111">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsEnabled}">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="{x:Type Thumb}">
+                                                <Border x:Name="ThumbBorder" Background="#34493D" CornerRadius="5" Margin="2,0,2,0"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#7FD49A"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="true">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#7FD49A"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="MainBorder" CornerRadius="12" BorderThickness="1.5">
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#7FD49A" Offset="0"/>
+                <GradientStop Color="#2DE1FF" Offset="0.5"/>
+                <GradientStop Color="#7FD49A" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#EE1A1A1A" Offset="0"/>
+                <GradientStop Color="#F9121212" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/> <!-- Header Row -->
+                <RowDefinition Height="*"/>    <!-- Content Row -->
+                <RowDefinition Height="35"/>   <!-- Footnote Row -->
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar / Header -->
+            <Grid Grid.Row="0" x:Name="HeaderBar" Background="Transparent">
+                <TextBlock Text="VOICELINK" Foreground="#337FD49A" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="15,0,0,0" IsHitTestVisible="False"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button x:Name="BtnMinimize" Content="—" Click="BtnMinimize_Click" Width="30" Height="25" Background="Transparent" Foreground="#7FD49A" BorderThickness="0" FontSize="14" Cursor="Hand" />
+                    <Button x:Name="BtnMaximize" Content="⬜" Click="BtnMaximize_Click" Width="30" Height="25" Background="Transparent" Foreground="#7FD49A" BorderThickness="0" FontSize="14" Cursor="Hand" />
+                    <Button x:Name="BtnClose" Content="✕" Click="BtnClose_Click" Width="30" Height="25" Background="Transparent" Foreground="#C0392B" BorderThickness="0" FontSize="14" Cursor="Hand" />
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="15,0,15,0">
+            <TabControl x:Name="MainTabControl" Background="Transparent" BorderThickness="0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="Border" Background="#1A1A1A" BorderBrush="#333" BorderThickness="1,1,1,0" CornerRadius="4,4,0,0" Margin="0,0,2,0" Padding="10,5">
+                                        <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="5,2"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Border" Property="Background" Value="#252525"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Foreground" Value="#7FD49A"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                    </Style>
+                </TabControl.Resources>
+                
+                <!-- Main Control Tab -->
+                <TabItem x:Name="TabControls" Header="Controls">
+                    <Grid Margin="0,15,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>    <!-- Equal Spacer Top -->
+                            <RowDefinition Height="50"/>   <!-- Mini Waveform Centered -->
+                            <RowDefinition Height="*"/>    <!-- Equal Spacer Bottom -->
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,15">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/SinergitecVoiceLink;component/Assets/logo.png" Height="45" Margin="0,0,0,5" Stretch="Uniform"/>
+                            </StackPanel>
+                            <!-- Language Dropdown -->
+                            <ComboBox x:Name="CmbLanguage" Width="55" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#111" Foreground="#7FD49A" BorderBrush="#444" BorderThickness="1" SelectionChanged="CmbLanguage_SelectionChanged" SelectedIndex="0">
+                                <ComboBoxItem Content="EN"/>
+                                <ComboBoxItem Content="PT"/>
+                                <ComboBoxItem Content="ES"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Status -->
+                        <TextBlock x:Name="StatusText" Text="Ready to Transcribe" Foreground="#7FD49A" HorizontalAlignment="Center" FontWeight="SemiBold" Grid.Row="1" Margin="0,0,0,10" TextWrapping="Wrap" />
+
+                        <!-- API Key Input -->
+                        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,20">
+                            <TextBlock x:Name="LblApiKey" Text="API KEY" Foreground="#666666" FontSize="9" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBox x:Name="ApiKeyBox" Background="#252525" Foreground="#7FD49A" BorderBrush="#333333" Padding="8" BorderThickness="1" 
+                                     VerticalContentAlignment="Center" FontSize="10" Text="" TextChanged="ApiKeyBox_TextChanged"/>
+                        </StackPanel>
+
+                        <!-- Audio Source Selection -->
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                            <TextBlock x:Name="LblSource" Text="Source:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox x:Name="SourceCombo" Width="180" SelectedIndex="0" Background="#2D2D30" Foreground="#7FD49A">
+                                <ComboBoxItem x:Name="CmbSourceMic" Content="🎙️ Microphone"/>
+                                <ComboBoxItem x:Name="CmbSourceSys" Content="🔊 System Audio (Discord)"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Target Selection & Injection Controls -->
+                        <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,0,0,15">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                <TextBlock x:Name="LblTarget" Text="Target:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <ComboBox x:Name="TargetCombo" Width="180" SelectedIndex="1" Background="#2D2D30" Foreground="#7FD49A">
+                                    <ComboBoxItem Content="VS Code (OpenClaude)"/>
+                                    <ComboBoxItem x:Name="CmbTargetUniversal" Content="Universal (Active Window)"/>
+                                    <ComboBoxItem Content="Windows Terminal / SSH"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                <CheckBox x:Name="AutoSendCheck" Content="Auto-Send" Foreground="#7FD49A" IsChecked="True" VerticalAlignment="Center" Margin="0,0,0,5" Style="{StaticResource ToggleSwitchStyle}"/>
+                                <CheckBox x:Name="LogOnlyCheck" Content="Log Only (no injection)" Foreground="#888" IsChecked="False" VerticalAlignment="Center" Margin="0,0,0,0" Style="{StaticResource ToggleSwitchStyle}"/>
+                                <Button x:Name="BtnSendManually" Content="Send Now" Click="BtnSendManually_Click" Visibility="Collapsed" Background="#1E5171" Foreground="White" BorderThickness="0" Padding="10,2" FontWeight="Bold" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+
+                        <!-- BIG TOGGLE TALK BUTTON -->
+                        <Button x:Name="PttButton" Grid.Row="5" Background="#34493D" Foreground="#7FD49A" BorderThickness="1" BorderBrush="#2A3B31" 
+                                Height="90" Margin="0,0,0,15" FontSize="14" FontWeight="Bold" Click="PttButton_Click" 
+                                MouseEnter="PttButton_MouseEnter" MouseLeave="PttButton_MouseLeave">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="45">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel>
+                                <TextBlock x:Name="BtnText" Text="START" Foreground="#7FD49A" HorizontalAlignment="Center" FontSize="18"/>
+                                <TextBlock x:Name="BtnSubText" Text="CAPTURE" FontSize="10" Foreground="#7FD49A" Opacity="0.5" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Mini Waveform Visualization (Centered) -->
+                        <Grid Grid.Row="7" VerticalAlignment="Center">
+                            <Canvas x:Name="WaveformCanvas" Height="40" Width="280" HorizontalAlignment="Center" Background="#01000000">
+                                <!-- Subtle Glow Layer -->
+                                <Polyline x:Name="WaveformPolylineGlow" 
+                                          Stroke="#117FD49A" 
+                                          StrokeThickness="2"
+                                          Points="0,20 280,20">
+                                    <Polyline.Effect>
+                                        <BlurEffect Radius="3"/>
+                                    </Polyline.Effect>
+                                </Polyline>
+                                <!-- Spike Layer -->
+                                <Polyline x:Name="WaveformPolyline" 
+                                          Stroke="#7FD49A" 
+                                          StrokeThickness="1.2"
+                                          Points="0,20 280,20">
+                                    <Polyline.Effect>
+                                        <BlurEffect Radius="1"/>
+                                    </Polyline.Effect>
+                                </Polyline>
+                            </Canvas>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                
+                <!-- Donations Tab -->
+                <TabItem x:Name="TabDonations" Header="Donations">
+                    <Grid Margin="0,15,0,0">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock x:Name="LblSupportTitle" Text="SUPPORT THE PROJECT" Foreground="#7FD49A" FontWeight="Black" FontSize="11" Margin="0,10,0,15" HorizontalAlignment="Center"/>
+                            
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                <Button x:Name="BtnKofiSupport" Content="DONATE ($5)" Click="BtnKofiSupport_Click" Height="36" Padding="30,0" Background="#34493D" Foreground="#7FD49A" FontWeight="Bold" BorderBrush="#2A3B31" BorderThickness="1" Cursor="Hand">
+                                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="18"/></Style></Button.Resources>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock x:Name="LblSupportProcessed" Text="Payments securely processed by Ko-fi." Foreground="#444" FontSize="9" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                            <TextBlock x:Name="LblPixTitle" Text="PIX / QR CODE (BRL)" Foreground="#666" FontSize="9" FontWeight="Black" Margin="0,5,0,10" HorizontalAlignment="Center"/>
+                            
+                            <UniformGrid Columns="2" HorizontalAlignment="Center" Width="320">
+                                <StackPanel Margin="10">
+                                    <Button x:Name="BtnQR25" Click="BtnQR25_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="5">
+                                        <StackPanel>
+                                            <Image x:Name="ImgQR25" Source="pack://application:,,,/SinergitecVoiceLink;component/Assets/qr25.png" Width="100" Height="100" Stretch="Uniform"/>
+                                            <TextBlock Text="R$ 25,00" Foreground="#7FD49A" HorizontalAlignment="Center" Margin="0,5,0,0" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <Button x:Name="BtnQR50" Click="BtnQR50_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="5">
+                                        <StackPanel>
+                                            <Image x:Name="ImgQR50" Source="pack://application:,,,/SinergitecVoiceLink;component/Assets/qr50.png" Width="100" Height="100" Stretch="Uniform"/>
+                                            <TextBlock Text="R$ 50,00" Foreground="#7FD49A" HorizontalAlignment="Center" Margin="0,5,0,0" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                        
+                        <!-- Fullscreen QR Overlay -->
+                        <Grid x:Name="QrOverlay" Visibility="Collapsed" Background="#F9000000" MouseDown="QrOverlay_MouseDown">
+                            <Border BorderBrush="#7FD49A" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20" Background="#111" CornerRadius="8">
+                                <StackPanel>
+                                    <Image x:Name="ImgFullQR" Width="320" Height="320" Stretch="Uniform" Margin="0,0,0,15"/>
+                                    <TextBlock x:Name="LblCloseOverlay" Text="CLIQUE PARA FECHAR / CLICK TO CLOSE" Foreground="#555" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- Logs & Payloads Tab -->
+                <TabItem x:Name="TabLogs" Header="Logs &amp; Transcripts">
+                    <Grid Margin="0,15,0,0">
+                        <TextBox x:Name="LogBlock" Background="#111" Foreground="#888888" BorderThickness="1" BorderBrush="#333" 
+                                 FontSize="11" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" 
+                                 VerticalScrollBarVisibility="Auto" Padding="5" />
+                    </Grid>
+                </TabItem>
+
+                <!-- Profile Tab (Google Auth & Sync) -->
+                <TabItem x:Name="TabProfile" Header="Profile">
+                    <Grid Margin="0,20,0,0">
+                        <!-- Post-Login View -->
+                        <Grid x:Name="LoggedInPanel" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="Collapsed" Margin="0,0,0,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Avatar/Name/Email -->
+                                <RowDefinition Height="Auto"/> <!-- Sync Status -->
+                                <RowDefinition Height="*"/>    <!-- SPACER -->
+                                <RowDefinition Height="Auto"/> <!-- Support Section -->
+                                <RowDefinition Height="Auto"/> <!-- Logout -->
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,0,0,20">
+                                <Grid Margin="0,0,0,15">
+                                    <Border CornerRadius="45" Width="90" Height="90" BorderThickness="2">
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#7FD49A" Offset="0"/>
+                                                <GradientStop Color="#2DE1FF" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <Ellipse Width="86" Height="86">
+                                            <Ellipse.Fill>
+                                                <ImageBrush x:Name="ProfileImageBrush" Stretch="UniformToFill"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                    </Border>
+                                    <Border x:Name="ProfileInitialCircle" CornerRadius="45" Width="90" Height="90" Background="#252525">
+                                        <TextBlock x:Name="ProfileInitial" Text="?" Foreground="#7FD49A" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                                <TextBlock x:Name="UserNameText" Text="Loading Name..." Foreground="White" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="UserEmailText" Text="Loading Email..." Foreground="#7FD49A" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,15" Opacity="0.8"/>
+                            </StackPanel>
+                            
+                            <Border Grid.Row="1" Background="#1AFFFFFF" CornerRadius="8" Padding="15,10" Margin="0,0,0,15" Width="260">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock x:Name="LblSyncStatus" Text="SYNC STATUS" Foreground="#666" FontSize="9" FontWeight="Black" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="SyncStatusText" Text="✓ Connected" Foreground="#7FD49A" FontSize="11" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Content moved to TabDonations -->
+
+                            <Button Grid.Row="4" x:Name="BtnLogout" Content="LOGOUT" Click="BtnLogout_Click" Margin="0,0,0,5"
+                                    Background="Transparent" Foreground="#C0392B" FontSize="10" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                        </Grid>
+
+                        <!-- Pre-Login View -->
+                        <StackPanel x:Name="LoggedOutPanel" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Visible">
+                            <TextBlock Text="LOGIN" Foreground="#7FD49A" FontSize="14" Opacity="0.7" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                            
+                            <Grid x:Name="ProfileAuthWaitingPanel" Visibility="Collapsed" Margin="0,0,0,10">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                        <TextBlock Text="🕐" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#7FD49A"/>
+                                        <TextBlock Text="Waiting for browser..." Foreground="#7FD49A" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Button x:Name="BtnCancelAuth" Content="Cancel &amp; Restart" Click="BtnCancelAuth_Click" Background="Transparent" Foreground="#C0392B" BorderThickness="0" FontSize="10" FontWeight="Bold" Cursor="Hand"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button x:Name="BtnGoogleLogin" Click="BtnGoogleLogin_Click" Width="240" Height="45" Background="#1A1A1A" BorderThickness="1" BorderBrush="#333" Cursor="Hand" Margin="0,5,0,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
+                                </Button.Resources>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Viewbox Width="20" Height="20" Margin="0,0,12,0">
+                                        <Canvas Width="20" Height="20">
+                                            <Path Data="M19.6,10.22C19.6,9.58,19.54,8.97,19.43,8.38H10V11.85h5.38a4.6,4.6,0,0,1-2,3.02l-.02,0,3.22,2.5,0,0A9.6,9.6,0,0,0,19.6,10.22Z" Fill="#4285F4"/>
+                                            <Path Data="M10,20a9.6,9.6,0,0,0,6.58-2.42l-3.23-2.51a6,6,0,0,1-9.08-3.15L.95,14.65,1,14.65A10,10,0,0,0,10,20Z" Fill="#34A853"/>
+                                            <Path Data="M4.27,11.92a6,6,0,0,1,0-3.84V5.35H1a10,10,0,0,0,0,9.31l3.27-2.74Z" Fill="#FBBC05"/>
+                                            <Path Data="M10,4a5.91,5.91,0,0,1,4.19,1.64l3.12-3.12A10,10,0,0,0,1,5.35L4.27,8.08A6,6,0,0,1,10,4Z" Fill="#EA4335"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock x:Name="TxtGoogleLogin" Text="Continue with Google" Foreground="White" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- Get API Key Tab -->
+                <TabItem x:Name="TabApi" Header="Get API">
+                    <Grid Margin="10,20,10,10">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock x:Name="LblGetApiTitle" Text="FREE API NEEDED TO PROCEED" Foreground="#C0392B" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Border Background="#C0392B" CornerRadius="10" Width="20" Height="20" Margin="0,0,10,0">
+                                    <TextBlock Text="1" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
+                                </Border>
+                                <TextBlock x:Name="LblGetApiStep1" Text="Click the button below to open the standard API Console in your browser." Foreground="#CCCCCC" TextWrapping="Wrap" VerticalAlignment="Center" Width="250" FontSize="11"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Border Background="#E67E22" CornerRadius="10" Width="20" Height="20" Margin="0,0,10,0">
+                                    <TextBlock Text="2" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
+                                </Border>
+                                <TextBlock x:Name="LblGetApiStep2" Text="Continue with Google (use 'Log In' at the TOP RIGHT if the center loops)." Foreground="#CCCCCC" TextWrapping="Wrap" VerticalAlignment="Center" Width="250" FontSize="11"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <Border Background="#1E8449" CornerRadius="10" Width="20" Height="20" Margin="0,0,10,0">
+                                    <TextBlock Text="3" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
+                                </Border>
+                                <TextBlock x:Name="LblGetApiStep3" Text="Copy the API key from the Dashboard, paste it below, and talk it through!" Foreground="#CCCCCC" TextWrapping="Wrap" VerticalAlignment="Center" Width="250" FontSize="11"/>
+                            </StackPanel>
+
+                            <Button x:Name="BtnGetApiLink" Content="GET API" Click="BtnGetApiKey_Click" Margin="0,15,0,0" Height="40" Background="#C0392B" Foreground="#FFF" FontWeight="Black" BorderThickness="0" Cursor="Hand">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="20"/></Style>
+                                </Button.Resources>
+                            </Button>
+
+                            <StackPanel Orientation="Vertical" Margin="0,20,0,0">
+                                <TextBlock x:Name="LblApiKeyLink" Text="INSERT API KEY" Foreground="#666666" FontSize="9" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBox x:Name="ApiKeyBoxLink" Background="#252525" Foreground="#7FD49A" BorderBrush="#333333" Padding="8" BorderThickness="1" 
+                                         VerticalContentAlignment="Center" FontSize="10" Text="" TextChanged="ApiKeyBoxLink_TextChanged"/>
+                                <TextBlock x:Name="LblApiKeyFeedback" Text="SYSTEM WORKING API SET" Foreground="#7FD49A" FontSize="11" FontWeight="Bold" Margin="0,15,0,0" HorizontalAlignment="Center" Visibility="Collapsed" TextWrapping="Wrap" TextAlignment="Center"/>
+                                <TextBlock x:Name="LblApiKeyShared" Text="This key is shared with the Controls tab." Foreground="#444" FontSize="8" Margin="0,5,0,15" HorizontalAlignment="Right"/>
+
+                                <!-- Diagnostics Moved Here -->
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,0">
+                                    <TextBlock x:Name="LblTests" Text="TESTS" Foreground="#666" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button x:Name="BtnTestMicText" Content="Mic" Click="BtnTestMic_Click" Margin="0,0,5,0" Width="75" Height="30" Background="#2D2D30" Foreground="#7FD49A" BorderThickness="1" BorderBrush="#333" Padding="5"/>
+                                        <Button x:Name="BtnTestApiText" Content="API" Click="BtnTestApi_Click" Margin="0,0,5,0" Width="75" Height="30" Background="#2D2D30" Foreground="#7FD49A" BorderThickness="1" BorderBrush="#333" Padding="5"/>
+                                        <Button x:Name="BtnTestInjText" Content="Injection" Click="BtnTestInjection_Click" Width="75" Height="30" Background="#2D2D30" Foreground="#7FD49A" BorderThickness="1" BorderBrush="#333" Padding="5"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <TextBlock x:Name="LblFootnote" Text="Developed by danilofrazao-dev &amp; SinergiTARS" Foreground="#7FD49A" Opacity="0.12" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" IsHitTestVisible="False"/>
+            <TextBlock x:Name="LblVersion" Text="v3.0.0" Foreground="#7FD49A" Opacity="0.15" FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,5" IsHitTestVisible="False"/>
+        </Grid>
+        </Grid>
+    </Border>
+</Window>

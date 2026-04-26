@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SinergitecVoiceLink</AssemblyName>
+    <RootNamespace>Sinergitec.VoiceLink</RootNamespace>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Version>3.0.0</Version>
+    <Authors>danilofrazao-dev</Authors>
+    <Company>Sinergitec Systems</Company>
+    <Product>Sinergitec VoiceLink</Product>
+    <Copyright>Copyright © 2026 Danilo Frazao / Sinergitec Systems</Copyright>
+    <Description>The Universal AI Audio Bridge for Discord, Meetings, and Prompting.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="InputSimulatorCore" Version="1.0.5" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.png" />
+    <Resource Include="Assets\qr25.png" />
+    <Resource Include="Assets\qr50.png" />
+  </ItemGroup>
+
+</Project>
