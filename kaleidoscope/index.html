@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple II Hi-Res (HGR) Kaleidoscope Simulator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body {
+    background-color: #111;
+    color: #33ff33;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ----- Full-screen main display area ----- */
+  .main-area {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: #111;
+  }
+
+  .title-badge {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    z-index: 40;
+    color: #33ff33;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+    opacity: 0.85;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .title-badge .sub {
+    color: #aaffaa;
+    font-size: 0.6rem;
+    opacity: 0.7;
+    letter-spacing: 0;
+  }
+
+  .crt-container {
+    flex: 1;
+    display: flex;
+    background: #1c1c1c;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 12px;
+    border: 4px solid #3a3a3a;
+    box-shadow:
+      inset 0 0 18px rgba(255, 255, 255, 0.1),
+      0 0 35px rgba(0, 0, 0, 0.9),
+      0 0 15px rgba(0, 255, 0, 0.15);
+  }
+
+  .screen-frame {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .scanlines {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.35) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .glare {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.01) 50%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ----- Right-side retractable code drawer ----- */
+  .code-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 360px;
+    max-width: 85vw;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 55;
+    background: #080808;
+    border-left: 1px solid #33ff33;
+    box-shadow: -6px 0 20px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .code-drawer.open {
+    transform: translateX(0);
+  }
+
+  .code-header {
+    flex: 0 0 auto;
+    font-weight: bold;
+    color: #ffff55;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-bottom: 1px solid #33ff33;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .code-header button {
+    height: 20px;
+    line-height: 1;
+    padding: 0 6px;
+    font-size: 0.75rem;
+  }
+
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px;
+  }
+
+  pre {
+    margin: 0;
+    color: #33ff33;
+    font-size: 0.78rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .drawer-tab {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 2px;
+    padding: 10px 5px;
+    border: 1px solid #33ff33;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    background: #000;
+    color: #33ff33;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.7rem;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.5);
+    transition: right 0.25s ease;
+  }
+
+  .code-drawer.open + .drawer-tab {
+    right: 360px;
+  }
+
+  .drawer-tab:hover {
+    background: #33ff33;
+    color: #000;
+  }
+
+  /* ----- Bottom control bar (taskbar-style) ----- */
+  .controls {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    background: #1a1a1a;
+    border-top: 1px solid #33ff33;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
+    padding: 4px 8px;
+    min-height: 30px;
+    z-index: 100;
+  }
+
+  .controls.collapsed {
+    min-height: 26px;
+    padding: 2px 6px;
+  }
+
+  .controls.collapsed .control-group,
+  .controls.collapsed #btnPlayPause,
+  .controls.collapsed #btnClear {
+    display: none;
+  }
+
+  #btnToggleBar {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 22px;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  button, select {
+    background: #000;
+    color: #33ff33;
+    border: 1px solid #33ff33;
+    padding: 3px 8px;
+    font-family: inherit;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    height: 24px;
+    line-height: 1;
+  }
+
+  button:hover, select:hover {
+    background: #33ff33;
+    color: #000;
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+  }
+
+  label { color: #aaffaa; white-space: nowrap; }
+
+  input[type="range"] {
+    height: 18px;
+    width: 70px;
+    accent-color: #33ff33;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="main-area">
+    <div class="title-badge">
+      APPLE II HI-RES (HGR) KALEIDOSCOPE
+      <div class="sub">Emulating Apple II 280x192 High-Resolution Graphics Mode</div>
+    </div>
+
+    <div class="crt-container">
+      <div class="screen-frame">
+        <canvas id="hgrCanvas" width="280" height="192"></canvas>
+        <div class="scanlines"></div>
+        <div class="glare"></div>
+      </div>
+    </div>
+
+    <div class="code-drawer" id="codeDrawer">
+      <div class="code-header">
+        <span>Original Applesoft BASIC HGR Listing:</span>
+        <button id="btnCloseCode" title="Close drawer">✕</button>
+      </div>
+      <div class="drawer-content">
+<pre>
+10  REM APPLE II HI-RES KALEIDOSCOPE
+20  HGR : REM SWITCH TO 280X192 GRAPHICS
+30  HCOLOR= 3 : REM 1=GREEN 2=VIOLET 3=WHITE 5=ORANGE 6=BLUE
+40  FOR T = 0 TO 6.28 STEP 0.05
+50    X1 = 140 + 100 * SIN(2 * T)
+60    Y1 = 96  + 70  * COS(3 * T)
+70    X2 = 140 + 100 * SIN(3 * T)
+80    Y2 = 96  + 70  * COS(2 * T)
+90    REM 4-QUADRANT SYMMETRIC HPLOT LINES
+100   HPLOT X1, Y1 TO X2, Y2
+110   HPLOT 280-X1, Y1 TO 280-X2, Y2
+120   HPLOT X1, 192-Y1 TO X2, 192-Y2
+130   HPLOT 280-X1, 192-Y1 TO 280-X2, 192-Y2
+140 NEXT T : GOTO 40
+</pre>
+      </div>
+    </div>
+
+    <button class="drawer-tab" id="btnToggleCode" title="Show / hide BASIC listing">◀ CODE</button>
+  </div>
+
+  <div class="controls collapsed" id="controlsBar">
+    <button id="btnToggleBar" title="Collapse / expand controls">▴</button>
+    <button id="btnPlayPause">Pause</button>
+    <button id="btnClear">Clear</button>
+
+    <div class="control-group">
+      <label for="monitorType">Monitor Mode:</label>
+      <select id="monitorType">
+        <option value="color" selected>NTSC Color CRT</option>
+        <option value="green">Monochrome Green Phosphor (P31)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="pattern">Pattern:</label>
+      <select id="pattern">
+        <option value="lissajousLines" selected>Lissajous Laser Lines</option>
+        <option value="flowerRot">Rotating Harmonic Flower</option>
+        <option value="starburst">Symmetric Line Starburst</option>
+        <option value="randomHplot">Retro BASIC HPLOT Points</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="speed">Speed:</label>
+      <input type="range" id="speed" min="1" max="60" value="20" style="accent-color:#33ff33;">
+    </div>
+
+    <div class="control-group">
+      <label for="trail">Trails:</label>
+      <input type="range" id="trail" min="0" max="100" value="100" title="0 = none, 100 = permanent">
+    </div>
+  </div>
+</div>
+
+<script>
+  // The official Apple II Hi-Res (HGR) 6-Color Palette
+  const HGR_COLOR_PALETTE = [
+    '#000000', // 0: Black
+    '#11DD00', // 1: Green
+    '#DD22DD', // 2: Violet
+    '#FFFFFF', // 3: White
+    '#000000', // 4: Black 2
+    '#FF6600', // 5: Orange
+    '#2222FF', // 6: Blue
+    '#FFFFFF'  // 7: White 2
+  ];
+
+  // Classic P31 Green Phosphor Monitor Palette (with varying intensity shades)
+  const HGR_GREEN_PALETTE = [
+    '#000000', // 0: Black
+    '#22CC22', // 1: Medium Green
+    '#11AA11', // 2: Darker Green
+    '#33FF33', // 3: Bright Phosphor Green
+    '#000000', // 4: Black 2
+    '#28EE28', // 5: Light Green
+    '#15BB15', // 6: Mid Green
+    '#33FF33'  // 7: Bright Phosphor Green
+  ];
+
+  const HGR_ACTIVE_COLORS = [1, 2, 3, 5, 6]; // Non-black color indices
+
+  const canvas = document.getElementById('hgrCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let isRunning = true;
+  let t = 0;
+
+  const CX = 140; // Center X (280/2)
+  const CY = 96;  // Center Y (192/2)
+
+  function getPalette() {
+    const mode = document.getElementById('monitorType').value;
+    return mode === 'green' ? HGR_GREEN_PALETTE : HGR_COLOR_PALETTE;
+  }
+
+  function clearHGR() {
+    const palette = getPalette();
+    ctx.fillStyle = palette[0];
+    ctx.fillRect(0, 0, 280, 192);
+  }
+
+  // Draw mirrored lines across all 4 quadrants (X & Y axes symmetry)
+  function drawSymmetricLine(x1, y1, x2, y2, colorHex) {
+    ctx.strokeStyle = colorHex;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+
+    // Quadrant 1: Normal
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    // Quadrant 2: Horizontal Mirror
+    ctx.moveTo(280 - x1, y1); ctx.lineTo(280 - x2, y2);
+    // Quadrant 3: Vertical Mirror
+    ctx.moveTo(x1, 192 - y1); ctx.lineTo(x2, 192 - y2);
+    // Quadrant 4: Dual Mirror
+    ctx.moveTo(280 - x1, 192 - y1); ctx.lineTo(280 - x2, 192 - y2);
+
+    ctx.stroke();
+  }
+
+  function renderStep() {
+    const pattern = document.getElementById('pattern').value;
+    const trailAmount = parseInt(document.getElementById('trail').value);
+    const palette = getPalette();
+
+    // Trail slider emulates phosphor persistence:
+    // 0 = no persistence, 94 = original slow fade, 100 = permanent traces.
+    const fadeAlpha = (100 - trailAmount) / 100;
+    if (fadeAlpha > 0) {
+      ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
+      ctx.fillRect(0, 0, 280, 192);
+    }
+
+    t += 0.03;
+    const c = palette[HGR_ACTIVE_COLORS[Math.floor(t * 2) % HGR_ACTIVE_COLORS.length]];
+
+    if (pattern === 'lissajousLines') {
+      const rX = 120, rY = 80;
+      const x1 = CX + rX * Math.sin(t * 1.3);
+      const y1 = CY + rY * Math.cos(t * 0.9);
+      const x2 = CX + rX * Math.sin(t * 0.7 + 1.5);
+      const y2 = CY + rY * Math.cos(t * 1.1 + 0.5);
+
+      drawSymmetricLine(x1, y1, x2, y2, c);
+
+    } else if (pattern === 'flowerRot') {
+      const radius = 75 * Math.abs(Math.sin(t * 0.5));
+      const angle = t * 2;
+      const x1 = CX;
+      const y1 = CY;
+      const x2 = CX + radius * Math.cos(angle);
+      const y2 = CY + radius * Math.sin(angle);
+
+      drawSymmetricLine(x1, y1, x2, y2, c);
+
+    } else if (pattern === 'starburst') {
+      const step = (Math.floor(t * 10) % 20);
+      const x1 = CX;
+      const y1 = CY;
+      const x2 = step * 14;
+      const y2 = 0;
+
+      drawSymmetricLine(x1, y1, x2, y2, c);
+
+    } else if (pattern === 'randomHplot') {
+      for (let i = 0; i < 3; i++) {
+        const rx = Math.floor(Math.random() * 140);
+        const ry = Math.floor(Math.random() * 96);
+        const randColor = palette[HGR_ACTIVE_COLORS[Math.floor(Math.random() * HGR_ACTIVE_COLORS.length)]];
+
+        ctx.fillStyle = randColor;
+        ctx.fillRect(CX + rx, CY + ry, 1, 1);
+        ctx.fillRect(CX - rx, CY + ry, 1, 1);
+        ctx.fillRect(CX + rx, CY - ry, 1, 1);
+        ctx.fillRect(CX - rx, CY - ry, 1, 1);
+      }
+    }
+  }
+
+  let lastTime = 0;
+  function animate(now) {
+    if (!isRunning) return;
+
+    const speed = parseInt(document.getElementById('speed').value);
+    const interval = 1000 / speed;
+
+    if (now - lastTime >= interval) {
+      renderStep();
+      lastTime = now;
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  document.getElementById('btnPlayPause').addEventListener('click', (e) => {
+    isRunning = !isRunning;
+    e.target.textContent = isRunning ? 'Pause' : 'Play';
+    if (isRunning) requestAnimationFrame(animate);
+  });
+
+  document.getElementById('btnClear').addEventListener('click', clearHGR);
+  document.getElementById('monitorType').addEventListener('change', clearHGR);
+
+  // Control bar collapse / expand (taskbar style)
+  document.getElementById('btnToggleBar').addEventListener('click', (e) => {
+    const bar = document.getElementById('controlsBar');
+    const collapsed = bar.classList.toggle('collapsed');
+    e.target.textContent = collapsed ? '▴' : '▾';
+  });
+
+  // Code drawer open / close (right vertical panel)
+  const codeDrawer = document.getElementById('codeDrawer');
+  const codeTab = document.getElementById('btnToggleCode');
+  const codeClose = document.getElementById('btnCloseCode');
+
+  function toggleDrawer(forceClose = false) {
+    const isOpen = forceClose ? false : codeDrawer.classList.toggle('open');
+    if (forceClose) codeDrawer.classList.remove('open');
+    codeTab.textContent = isOpen ? '▶ CODE' : '◀ CODE';
+  }
+
+  codeTab.addEventListener('click', () => toggleDrawer());
+  if (codeClose) codeClose.addEventListener('click', () => toggleDrawer(true));
+
+  clearHGR();
+  requestAnimationFrame(animate);
+</script>
+
+</body>
+</html>
