@@ -206,26 +206,27 @@
     position: relative;
     flex: 0 0 auto;
     display: flex;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
     justify-content: center;
     align-items: center;
     background: #1a1a1a;
     border-top: 1px solid #33ff33;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
-    min-height: 30px;
+    padding: 6px 12px 6px 42px;
+    min-height: 34px;
     z-index: 100;
   }
 
   .controls.collapsed {
-    min-height: 26px;
-    padding: 2px 6px;
+    min-height: 32px;
+    padding: 4px 12px 4px 42px;
   }
 
   .controls.collapsed .control-group,
   .controls.collapsed #btnPlayPause,
   .controls.collapsed #btnClear {
-    display: none;
+    display: none !important;
   }
 
   #btnToggleBar {
@@ -233,23 +234,29 @@
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
-    height: 22px;
-    font-size: 0.65rem;
-    padding: 2px 6px;
+    width: 28px;
+    height: 26px;
+    font-size: 0.8rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 105;
   }
 
   button, select {
     background: #000;
     color: #33ff33;
     border: 1px solid #33ff33;
-    padding: 3px 8px;
+    padding: 4px 10px;
     font-family: inherit;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 4px;
     transition: all 0.2s;
-    height: 24px;
+    min-height: 28px;
     line-height: 1;
+    touch-action: manipulation;
   }
 
   button:hover, select:hover {
@@ -260,17 +267,52 @@
   .control-group {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.7rem;
+    gap: 6px;
+    font-size: 0.75rem;
   }
 
   label { color: #aaffaa; white-space: nowrap; }
 
   input[type="range"] {
-    height: 18px;
-    width: 70px;
+    height: 22px;
+    width: 80px;
     accent-color: #33ff33;
     cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* ----- Mobile Responsiveness ----- */
+  @media (max-width: 640px) {
+    .controls:not(.collapsed) {
+      justify-content: flex-start;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 8px 10px 8px 44px;
+    }
+
+    .title-badge {
+      font-size: 0.6rem;
+      top: 6px;
+      left: 8px;
+    }
+
+    .title-badge .sub {
+      display: none;
+    }
+
+    .crt-container {
+      margin: 4px;
+      padding: 4px;
+    }
+
+    .control-group {
+      flex: 1 1 auto;
+      min-width: 140px;
+    }
+
+    input[type="range"] {
+      width: 70px;
+    }
   }
 </style>
 </head>
