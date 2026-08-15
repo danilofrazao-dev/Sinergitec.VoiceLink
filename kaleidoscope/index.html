@@ -289,12 +289,61 @@
   }
 
   /* ----- Mobile Responsiveness ----- */
-  @media (max-width: 640px) {
+  @media (max-width: 640px), (max-height: 500px) {
+    .app {
+      height: auto;
+      min-height: 100dvh;
+      min-height: 100vh;
+    }
+
+    @supports (min-height: 100dvh) {
+      .app { min-height: 100dvh; }
+    }
+
+    .main-area {
+      flex: none;
+      height: calc(100dvh - 44px);
+      height: calc(100vh - 44px);
+    }
+
+    @supports (height: 1dvh) {
+      .main-area { height: calc(100dvh - 44px); }
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 6px 12px 10px 44px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      min-height: 44px;
+      background: #1a1a1a;
+      border-top: 2px solid #33ff33;
+      z-index: 200;
+    }
+
+    .controls.collapsed {
+      min-height: 44px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
     .controls:not(.collapsed) {
       justify-content: flex-start;
-      max-height: 50vh;
+      max-height: 55vh;
       overflow-y: auto;
-      padding: 8px 10px 8px 44px;
+    }
+
+    #btnToggleBar {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+
+    button, select {
+      min-height: 36px;
+      font-size: 0.8rem;
+      padding: 6px 12px;
     }
 
     .title-badge {
@@ -319,6 +368,7 @@
 
     input[type="range"] {
       width: 70px;
+      height: 28px;
     }
   }
 </style>
