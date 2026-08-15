@@ -11,7 +11,8 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
@@ -63,6 +64,7 @@
 
   .crt-container {
     flex: 1;
+    min-height: 0;
     display: flex;
     background: #1c1c1c;
     padding: 10px;
