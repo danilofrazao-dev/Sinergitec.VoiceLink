@@ -288,6 +288,29 @@
     touch-action: manipulation;
   }
 
+  #btnFullscreen {
+    background: #33ff33;
+    color: #000;
+  }
+
+  .exit-fs-badge {
+    position: absolute;
+    top: 50px;
+    right: 15px;
+    z-index: 150;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #33ff33;
+    color: #33ff33;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 4px;
+    display: none;
+    text-transform: uppercase;
+  }
+  
+  :fullscreen .exit-fs-badge { display: block; }
+
   /* ----- Mobile Responsiveness ----- */
   @media (max-width: 640px), (max-height: 500px) {
     .app {
@@ -383,6 +406,7 @@
     </div>
 
     <div class="crt-container">
+      <div id="exitFsBadge" class="exit-fs-badge" title="Exit Fullscreen">✕ EXIT FULLSCREEN</div>
       <div class="screen-frame">
         <canvas id="hgrCanvas" width="280" height="192"></canvas>
         <div class="scanlines"></div>
@@ -420,6 +444,7 @@
 
   <div class="controls collapsed" id="controlsBar">
     <button id="btnToggleBar" title="Collapse / expand controls">▴</button>
+    <button id="btnFullscreen" title="Toggle Fullscreen">⛶</button>
     <button id="btnPlayPause">Pause</button>
     <button id="btnClear">Clear</button>
 
@@ -601,11 +626,25 @@
   document.getElementById('btnClear').addEventListener('click', clearHGR);
   document.getElementById('monitorType').addEventListener('change', clearHGR);
 
-  // Control bar collapse / expand (taskbar style)
-  document.getElementById('btnToggleBar').addEventListener('click', (e) => {
-    const bar = document.getElementById('controlsBar');
-    const collapsed = bar.classList.toggle('collapsed');
-    e.target.textContent = collapsed ? '▴' : '▾';
+  // Toggle Fullscreen
+  const btnFullscreen = document.getElementById('btnFullscreen');
+  const exitFsBadge = document.getElementById('exitFsBadge');
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  btnFullscreen.addEventListener('click', toggleFullscreen);
+  exitFsBadge.addEventListener('click', () => {
+    if (document.exitFullscreen) document.exitFullscreen();
   });
 
   // Code drawer open / close (right vertical panel)
