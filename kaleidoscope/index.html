@@ -23,7 +23,12 @@
   .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
+    height: 100vh; /* fallback for older browsers */
+  }
+
+  @supports (height: 100dvh) {
+    .app { height: 100dvh; }
   }
 
   /* ----- Full-screen main display area ----- */
