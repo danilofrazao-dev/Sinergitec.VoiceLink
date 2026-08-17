@@ -87,6 +87,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+  }
+
+  .screen-frame:fullscreen,
+  .screen-frame:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+    padding: 0;
+    margin: 0;
   }
 
   canvas {
@@ -633,49 +645,34 @@
     e.target.textContent = collapsed ? '▴' : '▾';
   });
 
-  // Toggle Fullscreen
+  // Toggle Fullscreen on display screen-frame click or fullscreen button
+  const screenFrame = document.querySelector('.screen-frame');
   const btnFullscreen = document.getElementById('btnFullscreen');
   const exitFsBadge = document.getElementById('exitFsBadge');
 
-  function toggleFullscreen() {
+  function toggleFullscreenTarget(targetElem) {
+    const target = targetElem || screenFrame;
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        alert(`Error attempting to enable full-screen mode: ${err.message}`);
-      });
+      const req = target.requestFullscreen || target.webkitRequestFullscreen;
+      if (req) {
+        req.call(target).catch(err => {
+          console.log(`Fullscreen error: ${err.message}`);
+        });
+      }
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
       }
     }
   }
 
-  // Attempt fullscreen on page load and auto-enter on first user click/tap
-  function requestAutoFullscreen() {
-    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {
-        // Suppress browser user-gesture restriction errors silently
-      });
-    }
-  }
-
-  // Attempt on load
-  window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('monitorType').value = 'color';
-    requestAutoFullscreen();
+  screenFrame.addEventListener('click', () => toggleFullscreenTarget(screenFrame));
+  btnFullscreen.addEventListener('click', () => toggleFullscreenTarget(screenFrame));
+  exitFsBadge.addEventListener('click', () => {
+    if (document.exitFullscreen) document.exitFullscreen();
   });
-
-  // Auto-enter fullscreen on first click/tap anywhere if browser blocked initial load
-  let hasInteracted = false;
-  document.addEventListener('click', () => {
-    if (!hasInteracted) {
-      hasInteracted = true;
-      if (!document.fullscreenElement) {
-        requestAutoFullscreen();
-      }
-    }
-  }, { once: true });
-
-  btnFullscreen.addEventListener('click', toggleFullscreen);
   exitFsBadge.addEventListener('click', () => {
     if (document.exitFullscreen) document.exitFullscreen();
   });
