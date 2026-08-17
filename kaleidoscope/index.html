@@ -101,6 +101,13 @@
     margin: 0;
   }
 
+  .screen-frame:fullscreen canvas,
+  .screen-frame:-webkit-full-screen canvas {
+    width: 100vw;
+    height: 100vh;
+    object-fit: fill;
+  }
+
   canvas {
     display: block;
     width: 100%;
