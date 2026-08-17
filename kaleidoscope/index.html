@@ -90,14 +90,16 @@
     cursor: pointer;
   }
 
+  body.screen-only .screen-frame,
   .screen-frame:fullscreen,
   .screen-frame:-webkit-full-screen {
     position: fixed;
     inset: 0;
+    z-index: 1000;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     min-width: 100vw;
-    min-height: 100vh;
+    min-height: 100dvh;
     max-width: none;
     max-height: none;
     border: 0;
@@ -109,6 +111,7 @@
     overflow: hidden;
   }
 
+  body.screen-only .screen-frame canvas,
   .screen-frame:fullscreen canvas,
   .screen-frame:-webkit-full-screen canvas {
     position: absolute;
@@ -427,7 +430,7 @@
   }
 </style>
 </head>
-<body>
+<body class="screen-only">
 
 <div class="app">
   <div class="main-area">
@@ -665,34 +668,19 @@
     e.target.textContent = collapsed ? '▴' : '▾';
   });
 
-  // Toggle Fullscreen on display screen-frame click or fullscreen button
+  // Screen-only mode is the default page view. Click the image to edit controls,
+  // then click it again (or use the toolbar button) to return to screen-only mode.
   const screenFrame = document.querySelector('.screen-frame');
   const btnFullscreen = document.getElementById('btnFullscreen');
   const exitFsBadge = document.getElementById('exitFsBadge');
 
-  function toggleFullscreenTarget(targetElem) {
-    const target = targetElem || screenFrame;
-    if (!document.fullscreenElement) {
-      const req = target.requestFullscreen || target.webkitRequestFullscreen;
-      if (req) {
-        req.call(target).catch(err => {
-          console.log(`Fullscreen error: ${err.message}`);
-        });
-      }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-    }
+  function toggleScreenOnly() {
+    document.body.classList.toggle('screen-only');
   }
 
-  screenFrame.addEventListener('click', () => toggleFullscreenTarget(screenFrame));
-  btnFullscreen.addEventListener('click', () => toggleFullscreenTarget(screenFrame));
-  exitFsBadge.addEventListener('click', () => {
-    if (document.exitFullscreen) document.exitFullscreen();
-  });
+  screenFrame.addEventListener('click', toggleScreenOnly);
+  btnFullscreen.addEventListener('click', toggleScreenOnly);
+  exitFsBadge.addEventListener('click', () => document.body.classList.remove('screen-only'));
   exitFsBadge.addEventListener('click', () => {
     if (document.exitFullscreen) document.exitFullscreen();
   });
