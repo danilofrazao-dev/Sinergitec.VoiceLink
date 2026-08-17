@@ -499,7 +499,7 @@
 
     <div class="control-group">
       <label for="speed">Speed:</label>
-      <input type="range" id="speed" min="1" max="60" value="14" style="accent-color:#33ff33;">
+      <input type="range" id="speed" min="1" max="60" value="10" style="accent-color:#33ff33;">
     </div>
 
     <div class="control-group">
@@ -587,7 +587,8 @@
       ctx.fillRect(0, 0, 280, 192);
     }
 
-    t += 0.01;
+    // Double the test separation from each previously drawn near-parallel line.
+    t += 0.025;
     const c = palette[HGR_ACTIVE_COLORS[Math.floor(t * 2) % HGR_ACTIVE_COLORS.length]];
 
     if (pattern === 'lissajousLines') {
