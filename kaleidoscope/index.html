@@ -649,6 +649,32 @@
     }
   }
 
+  // Attempt fullscreen on page load and auto-enter on first user click/tap
+  function requestAutoFullscreen() {
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {
+        // Suppress browser user-gesture restriction errors silently
+      });
+    }
+  }
+
+  // Attempt on load
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('monitorType').value = 'color';
+    requestAutoFullscreen();
+  });
+
+  // Auto-enter fullscreen on first click/tap anywhere if browser blocked initial load
+  let hasInteracted = false;
+  document.addEventListener('click', () => {
+    if (!hasInteracted) {
+      hasInteracted = true;
+      if (!document.fullscreenElement) {
+        requestAutoFullscreen();
+      }
+    }
+  }, { once: true });
+
   btnFullscreen.addEventListener('click', toggleFullscreen);
   exitFsBadge.addEventListener('click', () => {
     if (document.exitFullscreen) document.exitFullscreen();
