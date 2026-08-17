@@ -123,7 +123,7 @@
     object-fit: contain;
   }
 
-  body.screen-only.stretch-screen .screen-frame canvas {
+  body:not(.screen-only).stretch-screen .screen-frame canvas {
     object-fit: fill;
   }
 
@@ -488,7 +488,7 @@
   <div class="controls collapsed" id="controlsBar">
     <button id="btnToggleBar" title="Collapse / expand controls">▴</button>
     <button id="btnFullscreen" title="Return to screen-only view">⛶</button>
-    <button id="btnStretch" title="Toggle stretched screen-only mode" aria-pressed="false">↔ Stretch</button>
+    <button id="btnStretch" title="Toggle stretch in controls view" aria-pressed="false">↔ Stretch</button>
     <button id="btnPlayPause">Pause</button>
     <button id="btnClear">Clear</button>
 
