@@ -442,7 +442,7 @@
     <button class="drawer-tab" id="btnToggleCode" title="Show / hide BASIC listing">◀ CODE</button>
   </div>
 
-  <div class="controls collapsed" id="controlsBar">
+  <div class="controls" id="controlsBar">
     <button id="btnToggleBar" title="Collapse / expand controls">▴</button>
     <button id="btnFullscreen" title="Toggle Fullscreen">⛶</button>
     <button id="btnPlayPause">Pause</button>
@@ -625,6 +625,13 @@
 
   document.getElementById('btnClear').addEventListener('click', clearHGR);
   document.getElementById('monitorType').addEventListener('change', clearHGR);
+
+  // Control bar collapse / expand (taskbar style)
+  document.getElementById('btnToggleBar').addEventListener('click', (e) => {
+    const bar = document.getElementById('controlsBar');
+    const collapsed = bar.classList.toggle('collapsed');
+    e.target.textContent = collapsed ? '▴' : '▾';
+  });
 
   // Toggle Fullscreen
   const btnFullscreen = document.getElementById('btnFullscreen');
