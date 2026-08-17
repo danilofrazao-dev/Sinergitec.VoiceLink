@@ -123,6 +123,15 @@
     object-fit: contain;
   }
 
+  body.screen-only.stretch-screen .screen-frame canvas {
+    object-fit: fill;
+  }
+
+  #btnStretch.active {
+    background: #33ff33;
+    color: #000;
+  }
+
   canvas {
     display: block;
     width: 100%;
@@ -478,7 +487,8 @@
 
   <div class="controls collapsed" id="controlsBar">
     <button id="btnToggleBar" title="Collapse / expand controls">▴</button>
-    <button id="btnFullscreen" title="Toggle Fullscreen">⛶</button>
+    <button id="btnFullscreen" title="Return to screen-only view">⛶</button>
+    <button id="btnStretch" title="Toggle stretched screen-only mode" aria-pressed="false">↔ Stretch</button>
     <button id="btnPlayPause">Pause</button>
     <button id="btnClear">Clear</button>
 
@@ -672,14 +682,23 @@
   // then click it again (or use the toolbar button) to return to screen-only mode.
   const screenFrame = document.querySelector('.screen-frame');
   const btnFullscreen = document.getElementById('btnFullscreen');
+  const btnStretch = document.getElementById('btnStretch');
   const exitFsBadge = document.getElementById('exitFsBadge');
 
   function toggleScreenOnly() {
     document.body.classList.toggle('screen-only');
   }
 
+  function toggleStretch() {
+    const stretched = document.body.classList.toggle('stretch-screen');
+    btnStretch.classList.toggle('active', stretched);
+    btnStretch.setAttribute('aria-pressed', String(stretched));
+    btnStretch.textContent = stretched ? '↔ Stretched' : '↔ Stretch';
+  }
+
   screenFrame.addEventListener('click', toggleScreenOnly);
   btnFullscreen.addEventListener('click', toggleScreenOnly);
+  btnStretch.addEventListener('click', toggleStretch);
   exitFsBadge.addEventListener('click', () => document.body.classList.remove('screen-only'));
   exitFsBadge.addEventListener('click', () => {
     if (document.exitFullscreen) document.exitFullscreen();
