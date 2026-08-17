@@ -117,7 +117,7 @@
     height: 100%;
     max-width: none;
     max-height: none;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   canvas {
@@ -591,7 +591,8 @@
     const c = palette[HGR_ACTIVE_COLORS[Math.floor(t * 2) % HGR_ACTIVE_COLORS.length]];
 
     if (pattern === 'lissajousLines') {
-      const rX = 120, rY = 80;
+      // Fill almost the full native 280x192 HGR frame while preserving its ratio.
+      const rX = 139, rY = 95;
       const x1 = CX + rX * Math.sin(t * 1.3);
       const y1 = CY + rY * Math.cos(t * 0.9);
       const x2 = CX + rX * Math.sin(t * 0.7 + 1.5);
