@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Red LED Message Banner</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+      background: #050505;
+      color: #f4f4f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .app {
+      width: min(1400px, 100%);
+    }
+
+    :fullscreen {
+      --banner-zoom: 1;
+      background: #000;
+    }
+
+    :fullscreen .app {
+      transform: scale(var(--banner-zoom));
+      transform-origin: center;
+    }
+
+    :fullscreen canvas {
+      touch-action: none;
+    }
+
+    .menu-toggle {
+      position: fixed;
+      z-index: 20;
+      top: 18px;
+      right: 18px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border: 1px solid #5c5c5c;
+      border-radius: 50%;
+      background: #151515e8;
+      color: #fff;
+      font-size: 1.35rem;
+      cursor: pointer;
+      box-shadow: 0 5px 22px #000b;
+    }
+
+    .menu-toggle:hover { background: #292929; }
+
+    .scrim {
+      position: fixed;
+      z-index: 9;
+      inset: 0;
+      visibility: hidden;
+      opacity: 0;
+      background: #0008;
+      transition: opacity .25s, visibility .25s;
+    }
+
+    body.menu-open .scrim {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .frame {
+      position: relative;
+      padding: clamp(12px, 2.5vw, 25px);
+      overflow: hidden;
+      border: 1px solid #3a3a3a;
+      border-radius: 16px;
+      background: linear-gradient(#292929, #111 18%, #090909 82%, #252525);
+      box-shadow: 0 24px 70px #000, inset 0 1px #555, inset 0 -1px #000;
+    }
+
+    .frame::before,
+    .frame::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #050505;
+      border: 1px solid #555;
+      box-shadow: inset 0 1px 2px #000;
+      transform: translateY(-50%);
+    }
+
+    .frame::before { left: 7px; }
+    .frame::after { right: 7px; }
+
+    .display {
+      overflow: hidden;
+      border: 2px solid #000;
+      border-radius: 5px;
+      background: #000;
+      box-shadow: inset 0 0 24px #000, 0 0 18px rgb(255 0 0 / 8%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: clamp(150px, 23vw, 240px);
+      background: #000;
+    }
+
+    .settings {
+      position: fixed;
+      z-index: 10;
+      top: 0;
+      right: 0;
+      width: min(390px, 92vw);
+      height: 100vh;
+      padding: 78px 22px 24px;
+      overflow-y: auto;
+      border-left: 1px solid #383838;
+      background: #101010f7;
+      box-shadow: -18px 0 50px #000b;
+      transform: translateX(105%);
+      transition: transform .25s ease;
+    }
+
+    body.menu-open .settings { transform: translateX(0); }
+
+    .settings h2 {
+      margin: 0 0 20px;
+      font-size: 1.25rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 12px;
+      align-items: end;
+    }
+
+    .message-control { grid-column: 1 / -1; }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: #b8b8b8;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid #444;
+      border-radius: 7px;
+      outline: none;
+      background: #080808;
+      color: #fff;
+      font: 600 1rem ui-monospace, Consolas, monospace;
+    }
+
+    input[type="text"]:focus {
+      border-color: #d72626;
+      box-shadow: 0 0 0 3px #d7262630;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #e32626;
+    }
+
+    .speed-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    output { color: #ff5050; }
+
+    button {
+      min-height: 42px;
+      padding: 0 18px;
+      border: 1px solid #555;
+      border-radius: 7px;
+      cursor: pointer;
+      background: #202020;
+      color: #fff;
+      font-weight: 750;
+    }
+
+    button:hover { background: #303030; }
+    button:active { transform: translateY(1px); }
+
+    .primary {
+      border-color: #ff4444;
+      background: #b41313;
+      box-shadow: 0 0 18px #e11a1a35;
+    }
+
+    .primary:hover { background: #d21c1c; }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid #303030;
+      color: #aaa;
+      font-size: .9rem;
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+    }
+
+    .check input { accent-color: #e32626; }
+
+    @media (max-width: 760px) {
+      body { padding: 10px; }
+      .menu-toggle { top: 10px; right: 10px; }
+    }
+
+    @media (max-width: 460px) {
+      .controls { grid-template-columns: 1fr; }
+      .message-control { grid-column: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      canvas { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="frame" aria-label="Electronic LED banner">
+      <div class="display">
+        <canvas id="banner" role="img" aria-label="Scrolling red LED message"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open banner controls" aria-expanded="false">⚙</button>
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="settings" id="settings" aria-hidden="true">
+    <h2>Banner controls</h2>
+    <form class="controls" id="controls">
+      <label class="message-control">
+        Message
+        <input id="message" type="text" maxlength="160" value="WELCOME! THIS IS A RED LED BANNER" autocomplete="off" spellcheck="false">
+      </label>
+
+      <label>
+        <span class="speed-line">Speed <output id="speedValue">70</output></span>
+        <input id="speed" type="range" min="15" max="180" value="70" step="5">
+      </label>
+
+      <button class="primary" type="submit">Show text</button>
+      <button id="pause" type="button">Pause</button>
+      <button id="fullscreen" type="button">Full screen</button>
+    </form>
+
+    <div class="options">
+      <label class="check"><input id="glow" type="checkbox" checked> LED glow</label>
+      <label class="check"><input id="dimDots" type="checkbox" checked> Show unlit dots</label>
+    </div>
+  </aside>
+
+  <script>
+    (() => {
+      const canvas = document.querySelector('#banner');
+      const ctx = canvas.getContext('2d');
+      const form = document.querySelector('#controls');
+      const messageInput = document.querySelector('#message');
+      const speedInput = document.querySelector('#speed');
+      const speedValue = document.querySelector('#speedValue');
+      const pauseButton = document.querySelector('#pause');
+      const fullscreenButton = document.querySelector('#fullscreen');
+      const glowInput = document.querySelector('#glow');
+      const dimDotsInput = document.querySelector('#dimDots');
+      const menuToggle = document.querySelector('#menuToggle');
+      const settings = document.querySelector('#settings');
+      const scrim = document.querySelector('#scrim');
+
+      function setMenu(open) {
+        document.body.classList.toggle('menu-open', open);
+        menuToggle.textContent = open ? '×' : '⚙';
+        menuToggle.setAttribute('aria-expanded', String(open));
+        menuToggle.setAttribute('aria-label', open ? 'Close banner controls' : 'Open banner controls');
+        settings.setAttribute('aria-hidden', String(!open));
+        if (open) messageInput.focus();
+      }
+
+      menuToggle.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+      scrim.addEventListener('click', () => setMenu(false));
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') setMenu(false);
+      });
+
+      const maskCanvas = document.createElement('canvas');
+      const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+
+      let width = 800;
+      let height = 200;
+      let pitch = 9;
+      let radius = 2.8;
+      let position = width;
+      let maskWidth = 1;
+      let maskData = null;
+      let lastTime = performance.now();
+      let paused = false;
+      let bannerZoom = Number(localStorage.getItem('redLedBannerZoom')) || 1;
+      let zoomBeforeFullscreen = 1;
+      let pinchStartDistance = 0;
+      let pinchStartZoom = 1;
+      let pinching = false;
+
+      function applyBannerZoom(value) {
+        bannerZoom = Math.min(4, Math.max(0.6, value));
+        document.documentElement.style.setProperty('--banner-zoom', bannerZoom.toFixed(3));
+        localStorage.setItem('redLedBannerZoom', String(bannerZoom));
+      }
+
+      applyBannerZoom(bannerZoom);
+
+      const savedState = JSON.parse(localStorage.getItem('redLedBannerState') || '{}');
+      if (typeof savedState.message === 'string') messageInput.value = savedState.message;
+      if (savedState.speed) speedInput.value = savedState.speed;
+      if (typeof savedState.glow === 'boolean') glowInput.checked = savedState.glow;
+      if (typeof savedState.dimDots === 'boolean') dimDotsInput.checked = savedState.dimDots;
+      speedValue.value = speedInput.value;
+
+      let message = messageInput.value;
+
+      let serverRevision = 0;
+      let syncTimer = 0;
+      let localChangeUntil = 0;
+
+      function currentState() {
+        return {
+          message: messageInput.value,
+          speed: speedInput.value,
+          glow: glowInput.checked,
+          dimDots: dimDotsInput.checked
+        };
+      }
+
+      function saveState(syncServer = false) {
+        const state = currentState();
+        localStorage.setItem('redLedBannerState', JSON.stringify(state));
+        if (syncServer) {
+          localChangeUntil = Date.now() + 3000;
+          clearTimeout(syncTimer);
+          syncTimer = setTimeout(() => {
+            fetch('/api/state', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(currentState())
+            }).then(response => response.ok ? response.json() : null)
+              .then(remote => {
+                if (remote) serverRevision = remote.revision || serverRevision;
+                localChangeUntil = 0;
+              })
+              .catch(() => {});
+          }, 150);
+        }
+      }
+
+      function applyState(state) {
+        if (!state || typeof state.message !== 'string') return;
+        messageInput.value = state.message;
+        speedInput.value = state.speed || speedInput.value;
+        if (typeof state.glow === 'boolean') glowInput.checked = state.glow;
+        if (typeof state.dimDots === 'boolean') dimDotsInput.checked = state.dimDots;
+        speedValue.value = speedInput.value;
+        message = messageInput.value;
+        buildMask();
+      }
+
+      async function pollServer() {
+        try {
+          const response = await fetch('/api/state', { cache: 'no-store' });
+          if (!response.ok) return;
+          const state = await response.json();
+          if ((state.revision || 0) > serverRevision && Date.now() > localChangeUntil) {
+            serverRevision = state.revision || 0;
+            applyState(state);
+            localStorage.setItem('redLedBannerState', JSON.stringify(currentState()));
+          }
+        } catch (_) {}
+      }
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        width = Math.max(1, Math.round(rect.width));
+        height = Math.max(1, Math.round(rect.height));
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        pitch = Math.max(7, Math.round(height / 23));
+        radius = pitch * 0.31;
+        buildMask();
+        position = width;
+      }
+
+      function buildMask() {
+        const fontSize = Math.round(height * 0.63);
+        const font = `900 ${fontSize}px Arial Black, Arial, sans-serif`;
+        maskCtx.font = font;
+        const measured = maskCtx.measureText(message);
+        maskWidth = Math.max(1, Math.ceil(measured.width + pitch * 4));
+
+        maskCanvas.width = maskWidth;
+        maskCanvas.height = height;
+        maskCtx.clearRect(0, 0, maskWidth, height);
+        maskCtx.font = font;
+        maskCtx.textBaseline = 'middle';
+        maskCtx.fillStyle = '#fff';
+        maskCtx.fillText(message, pitch * 2, height / 2 - pitch * 0.25);
+        maskData = maskCtx.getImageData(0, 0, maskWidth, height).data;
+        canvas.setAttribute('aria-label', `Scrolling red LED message: ${message}`);
+      }
+
+      function maskIsLit(x, y) {
+        const mx = Math.round(x - position);
+        const my = Math.round(y);
+        if (mx < 0 || mx >= maskWidth || my < 0 || my >= height) return false;
+        return maskData[(my * maskWidth + mx) * 4 + 3] > 80;
+      }
+
+      function dot(x, y, lit) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+        if (lit) {
+          if (glowInput.checked) {
+            ctx.shadowColor = '#ff1818';
+            ctx.shadowBlur = radius * 3.2;
+          }
+          ctx.fillStyle = '#ff2525';
+        } else {
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#240707';
+        }
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if (lit) {
+          ctx.beginPath();
+          ctx.arc(x - radius * .28, y - radius * .3, radius * .25, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffb0a0';
+          ctx.fill();
+        }
+      }
+
+      function draw(time) {
+        const dt = Math.min((time - lastTime) / 1000, 0.05);
+        lastTime = time;
+
+        if (!paused) {
+          // Speed is measured in LED columns, not device pixels, so phone,
+          // desktop, and fullscreen all move at the same visual rate.
+          position -= Number(speedInput.value) * (pitch / 9) * dt;
+          if (position < -maskWidth) position = width + pitch * 4;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#010101';
+        ctx.fillRect(0, 0, width, height);
+
+        const offsetX = (width % pitch) / 2;
+        const offsetY = (height % pitch) / 2;
+        for (let y = offsetY + pitch / 2; y < height; y += pitch) {
+          for (let x = offsetX + pitch / 2; x < width; x += pitch) {
+            const lit = maskIsLit(x, y);
+            if (lit || dimDotsInput.checked) dot(x, y, lit);
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        message = messageInput.value.trim() || ' ';
+        messageInput.value = message;
+        saveState(true);
+        buildMask();
+        position = width;
+        setMenu(false);
+      });
+
+      messageInput.addEventListener('input', saveState);
+      speedInput.addEventListener('input', () => {
+        speedValue.value = speedInput.value;
+        saveState(true);
+      });
+      glowInput.addEventListener('change', saveState);
+      dimDotsInput.addEventListener('change', saveState);
+
+      function togglePause() {
+        paused = !paused;
+        pauseButton.textContent = paused ? 'Resume' : 'Pause';
+        canvas.setAttribute('aria-label', `${paused ? 'Paused' : 'Scrolling'} red LED message: ${message}`);
+      }
+
+      pauseButton.addEventListener('click', togglePause);
+
+      document.addEventListener('keydown', event => {
+        if (event.code === 'Space' && document.fullscreenElement &&
+            !['INPUT', 'TEXTAREA', 'BUTTON'].includes(document.activeElement?.tagName)) {
+          event.preventDefault();
+          togglePause();
+        }
+      });
+
+      async function toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            saveState(true);
+            zoomBeforeFullscreen = window.visualViewport?.scale || 1;
+            if (zoomBeforeFullscreen > 1.01) applyBannerZoom(zoomBeforeFullscreen);
+            await document.documentElement.requestFullscreen();
+            if (screen.orientation?.lock) {
+              try { await screen.orientation.lock('landscape'); } catch (_) {}
+            }
+            setMenu(false);
+          } else {
+            await document.exitFullscreen();
+          }
+        } catch (_) {
+          alert('Firefox blocked full screen. Double-tap the banner again.');
+        }
+      }
+
+      fullscreenButton.addEventListener('click', toggleFullscreen);
+      let lastTouchTime = 0;
+      canvas.addEventListener('dblclick', event => {
+        event.preventDefault();
+        // Android Firefox also generates dblclick after two touch taps.
+        // Let the touch counter wait for a possible third tap instead.
+        if (Date.now() - lastTouchTime < 800) return;
+        toggleFullscreen();
+      });
+
+      function touchDistance(touches) {
+        return Math.hypot(
+          touches[0].clientX - touches[1].clientX,
+          touches[0].clientY - touches[1].clientY
+        );
+      }
+
+      canvas.addEventListener('touchstart', event => {
+        if (document.fullscreenElement && event.touches.length === 2) {
+          pinching = true;
+          pinchStartDistance = touchDistance(event.touches);
+          pinchStartZoom = bannerZoom;
+          event.preventDefault();
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', event => {
+        if (document.fullscreenElement && pinching && event.touches.length === 2) {
+          applyBannerZoom(pinchStartZoom * touchDistance(event.touches) / pinchStartDistance);
+          event.preventDefault();
+        }
+      }, { passive: false });
+
+      let tapCount = 0;
+      let tapTimer = 0;
+      canvas.addEventListener('touchend', event => {
+        lastTouchTime = Date.now();
+        if (pinching) {
+          if (event.touches.length < 2) pinching = false;
+          event.preventDefault();
+          tapCount = 0;
+          clearTimeout(tapTimer);
+          return;
+        }
+
+        event.preventDefault();
+        tapCount++;
+        clearTimeout(tapTimer);
+
+        if (tapCount >= 3) {
+          tapCount = 0;
+          if (paused) togglePause();
+          return;
+        }
+
+        tapTimer = setTimeout(() => {
+          const taps = tapCount;
+          tapCount = 0;
+          if (taps === 1 && !paused) togglePause();
+          if (taps === 2) toggleFullscreen();
+        }, 420);
+      }, { passive: false });
+
+      document.addEventListener('fullscreenchange', () => {
+        fullscreenButton.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+      });
+
+      new ResizeObserver(resize).observe(canvas);
+      pollServer();
+      setInterval(pollServer, 1500);
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>
