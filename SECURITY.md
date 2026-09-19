@@ -9,9 +9,14 @@ Sinergitec VoiceLink was built with a **Security-First** and **Local-First** phi
 ## 🔒 Key Security Features
 
 ### 1. Local-Only Storage
-Your Groq API keys are stored exclusively in your local machine's `%APPDATA%` folder:
-- `C:\Users\<User>\AppData\Roaming\Sinergitec.VoiceLink.Auth\api_key.txt`
-No data is ever sent to Sinergitec servers. All communication happens directly between your machine and the **Groq Whisper API**.
+Your Groq API key is stored exclusively in a single local configuration file on your own machine:
+
+- `C:\Users\<User>\AppData\Roaming\Sinergitec.VoiceLink.Auth\config.json`
+
+That file is created and owned by your Windows user account. It also holds the application's local
+state (trial stamp, licence token, hotkey and window settings). No data is ever sent to Sinergitec
+servers. All transcription communication happens directly between your machine and the **Groq
+Whisper API**.
 
 ### 2. No Conversation Logging
 VoiceLink does not store any audio or text logs of your transcriptions locally once they are sent to the target application. Every session is transient.
