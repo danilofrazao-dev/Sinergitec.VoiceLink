@@ -1,0 +1,17 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+publish/
+*.exe
+*.pdb
+*.zip
+*.msi
+
+# Local Auth Sessions (SECURE)
+Sinergitec.VoiceLink.Auth/
+api_key.txt
+AppSecrets.cs
