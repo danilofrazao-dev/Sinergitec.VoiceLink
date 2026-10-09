@@ -5,6 +5,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Support on Ko-fi](https://img.shields.io/badge/Donate-Ko--fi-EB4D4B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/danilofrazao-dev)
 
+**🌐 Website: [sinergitec.com.br](https://sinergitec.com.br)** — download, pricing, and docs.
+
 **Sinergitec VoiceLink** is a high-performance, native Windows application designed to bridge the gap between your voice and any AI interface. Whether you are coding in **VS Code**, prompting a frontier model inside a web UI, or chatting on **Discord**, VoiceLink lets you speak your thoughts and see them typed out at superhuman speed.
 
 > 💡 **Origin story:** VoiceLink was used to develop *itself*. Every prompt, instruction, and idea that shaped this very application was spoken aloud and captured by VoiceLink — then injected directly into the AI coding sessions that built it. The app's biggest power user is its own creator.
